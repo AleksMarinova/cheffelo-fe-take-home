@@ -5,9 +5,10 @@ export default function Home() {
     <main className="p-4">
       <h1 className="mb-8">
         <strong>
-          Cheffelo take-home test (choose <em>one</em> task + optional bonus)
+          Cheffelo take-home test (solve task 1 & 2 + optional bonus)
         </strong>
       </h1>
+      <p>If you are short on time, do <em>one</em> of the tasks.</p>
 
       <p>
         This application is a simple listing app that displays a list of cars

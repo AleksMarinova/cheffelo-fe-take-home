@@ -1,6 +1,6 @@
 ### Prerequisites:
 
-- Node.js version 18.17.0 or above
+- Node.js version 20.9.0 or above
 
 ### Installation
 

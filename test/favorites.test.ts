@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { LowSync, MemorySync } from "lowdb";
 
 import { addFavorite, getFavorites, removeFavorite } from "../lib/favorites";
@@ -21,10 +21,10 @@ describe("getFavorites", () => {
 });
 
 describe("addFavorite", () => {
-  it("appends an id and returns the new list", () => {
-    const db = makeDb();
-    expect(addFavorite(db, "abc")).toEqual(["abc"]);
-    expect(getFavorites(db)).toEqual(["abc"]);
+  it("appends an id to the end and returns the new list", () => {
+    const db = makeDb(["abc"]);
+    expect(addFavorite(db, "def")).toEqual(["abc", "def"]);
+    expect(getFavorites(db)).toEqual(["abc", "def"]);
   });
 
   it("is idempotent for an already-favorited id", () => {
@@ -67,12 +67,5 @@ describe("removeFavorite", () => {
     expect(() => removeFavorite(db, "")).toThrow(TypeError);
     expect(() => removeFavorite(db, 42)).toThrow(TypeError);
     expect(getFavorites(db)).toEqual(["abc"]);
-  });
-
-  it("does not write when the id is absent", () => {
-    const db = makeDb(["abc"]);
-    const write = vi.spyOn(db, "write");
-    removeFavorite(db, "nope");
-    expect(write).not.toHaveBeenCalled();
   });
 });

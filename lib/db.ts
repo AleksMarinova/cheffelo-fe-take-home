@@ -1,13 +1,12 @@
 import { LowSync } from "lowdb";
 import { JSONFileSync } from "lowdb/node";
 
-import { Listing } from "../types";
 import { join } from "path";
 
-type Data = Listing[];
+type Data = string[];
 
 export const devdb = () => {
-  const db = new LowSync<Listing[]>(
+  const db = new LowSync<string[]>(
     new JSONFileSync(join(process.cwd() + "/data/db.json")),
     [] as Data,
   );

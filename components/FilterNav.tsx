@@ -34,11 +34,7 @@ export const FilterNav = () => {
             key={href}
             href={href}
             aria-current={active ? "page" : undefined}
-            className={
-              active
-                ? "font-semibold underline underline-offset-4"
-                : "text-blue-700 underline"
-            }
+            className={active ? "filter-link-active" : "filter-link"}
           >
             {label}
           </Link>

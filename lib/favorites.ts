@@ -5,7 +5,7 @@ export type FavoritesDb = LowSync<string[]>;
 const snapshot = (db: FavoritesDb): string[] => [...db.data];
 
 function assertFavoriteId(id: unknown): asserts id is string {
-  if (typeof id !== "string" || id.length === 0) {
+  if (typeof id !== "string" || id.trim().length === 0) {
     throw new TypeError("id must be a non-empty string");
   }
 }

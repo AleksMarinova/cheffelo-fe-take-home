@@ -1,10 +1,7 @@
 import { APIError, Listing } from "../../../types";
 import { NextRequest, NextResponse } from "next/server";
 
-import listingsData from "../../../data/listings.json";
-
-const listings = listingsData as Listing[];
-const listingsById = new Map(listings.map((listing) => [listing.id, listing]));
+import { listings, listingsById } from "../../../lib/listings";
 
 const DEFAULT_LIMIT = 24;
 const MAX_LIMIT = 100;
@@ -39,10 +36,10 @@ export function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
 
-    // Lookup-by-ids: fetch a bounded, explicit set of listings (e.g. the user's
-    // favorites) in one request, independent of pagination. Order follows the
-    // requested ids; duplicates are collapsed, unknown ids are skipped, and the
-    // count is capped to bound the response size.
+    // Lookup-by-ids: fetch a bounded, explicit set of listings in one request,
+    // independent of pagination. Order follows the requested ids; duplicates are
+    // collapsed, unknown ids are skipped, and the count is capped to bound the
+    // response size.
     const idsParam = searchParams.get("ids");
     if (idsParam !== null) {
       const ids = Array.from(

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { APIError } from "../../../types";
 import { addFavorite, getFavorites } from "../../../lib/favorites";
+import { isKnownListing } from "../../../lib/listings";
 import { devdb } from "../../../lib/db";
 
 const db = devdb();
@@ -23,15 +24,17 @@ export const POST = async (req: Request) => {
 
   const id = (body as { id?: unknown })?.id;
 
-  try {
-    const before = getFavorites(db);
-    const after = addFavorite(db, id);
-    const created = after.length > before.length;
-    return NextResponse.json(after, { status: created ? 201 : 200 });
-  } catch (error) {
-    if (error instanceof TypeError) {
-      return apiError(400, error.message);
-    }
-    throw error;
+  if (typeof id !== "string" || id.trim().length === 0) {
+    return apiError(400, "id must be a non-empty string");
   }
+  // Only persist ids that reference a real listing, so the favorites store can't
+  // accumulate garbage from stale or malicious clients.
+  if (!isKnownListing(id)) {
+    return apiError(404, "Unknown listing id");
+  }
+
+  const before = getFavorites(db);
+  const after = addFavorite(db, id);
+  const created = after.length > before.length;
+  return NextResponse.json(after, { status: created ? 201 : 200 });
 };

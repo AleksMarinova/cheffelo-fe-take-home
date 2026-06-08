@@ -33,9 +33,10 @@ describe("addFavorite", () => {
     expect(getFavorites(db)).toEqual(["abc"]);
   });
 
-  it("throws TypeError for an empty or non-string id", () => {
+  it("throws TypeError for an empty, whitespace, or non-string id", () => {
     const db = makeDb();
     expect(() => addFavorite(db, "")).toThrow(TypeError);
+    expect(() => addFavorite(db, "   ")).toThrow(TypeError);
     expect(() => addFavorite(db, 42)).toThrow(TypeError);
     expect(getFavorites(db)).toEqual([]);
   });
@@ -62,9 +63,10 @@ describe("removeFavorite", () => {
     expect(getFavorites(db)).toEqual(["abc"]);
   });
 
-  it("throws TypeError for an empty or non-string id", () => {
+  it("throws TypeError for an empty, whitespace, or non-string id", () => {
     const db = makeDb(["abc"]);
     expect(() => removeFavorite(db, "")).toThrow(TypeError);
+    expect(() => removeFavorite(db, "   ")).toThrow(TypeError);
     expect(() => removeFavorite(db, 42)).toThrow(TypeError);
     expect(getFavorites(db)).toEqual(["abc"]);
   });

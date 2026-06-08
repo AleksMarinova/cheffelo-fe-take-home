@@ -1,10 +1,7 @@
 import { APIError, Listing } from "../../../types";
 import { NextRequest, NextResponse } from "next/server";
 
-import listingsData from "../../../data/listings.json";
-
-const listings = listingsData as Listing[];
-const listingsById = new Map(listings.map((listing) => [listing.id, listing]));
+import { listings, listingsById } from "../../../lib/listings";
 
 const DEFAULT_LIMIT = 24;
 const MAX_LIMIT = 100;

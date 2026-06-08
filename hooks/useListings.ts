@@ -17,6 +17,16 @@ import { useGetFavoritesQuery } from "../store/services/favorites";
 // Stable empty arg so a missing favorites set doesn't churn the query key.
 const EMPTY_IDS: string[] = [];
 
+// In favorites mode, show only currently-favorited listings. RTK retains the last
+// successful page when the favorites query is skipped (e.g. after removing the last
+// favorite), so trusting that data alone would leave a removed card on screen.
+export const getVisibleListings = (
+  pages: Listing[],
+  favoritesOnly: boolean,
+  favoriteIds: ReadonlySet<string>,
+): Listing[] =>
+  favoritesOnly ? pages.filter((listing) => favoriteIds.has(listing.id)) : pages;
+
 // Layout effect on the client (runs in commit, before async callbacks can read
 // the ref), plain effect on the server to avoid the SSR warning.
 const useIsomorphicLayoutEffect =
@@ -118,11 +128,11 @@ export const useListings = (favoritesOnly: boolean): UseListingsResult => {
 
   const favoriteIds = useMemo(() => new Set(favorites), [favorites]);
 
-  // Flatten the loaded pages into one list.
-  const visible = useMemo(
-    () => data?.pages.flatMap((page) => page.data) ?? [],
-    [data],
-  );
+  // Flatten the loaded pages, filtering to current favorites in favorites mode.
+  const visible = useMemo(() => {
+    const pages = data?.pages.flatMap((page) => page.data) ?? [];
+    return getVisibleListings(pages, favoritesOnly, favoriteIds);
+  }, [data, favoritesOnly, favoriteIds]);
 
   // Settled = first response in, or errored.
   const favoritesSettled = favorites !== undefined || Boolean(favoritesError);

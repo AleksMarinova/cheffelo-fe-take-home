@@ -3,13 +3,14 @@ import { Suspense } from "react";
 
 import { Listings } from "../../components/Listings";
 import { FilterNav } from "../../components/FilterNav";
+import { BackToTop } from "../../components/BackToTop";
 
 export default function ListingsPage() {
   return (
     <>
       <header className="p-4">
         <Link href="/">&lt; Back to home page</Link>
-        <h1 className="mt-4">
+        <h1 id="listings-heading" tabIndex={-1} className="mt-4">
           <strong>Listings</strong>
         </h1>
         <Suspense fallback={null}>
@@ -22,6 +23,8 @@ export default function ListingsPage() {
           <Listings />
         </Suspense>
       </main>
+
+      <BackToTop focusTargetId="listings-heading" />
     </>
   );
 }

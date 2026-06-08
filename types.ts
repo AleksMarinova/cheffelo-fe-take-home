@@ -13,4 +13,6 @@ export interface APIError {
 
 export interface ListingsResponse {
   data: Listing[];
+  /** Offset to request the next page, or `null` when the list is exhausted. */
+  nextOffset: number | null;
 }

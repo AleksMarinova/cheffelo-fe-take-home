@@ -1,4 +1,11 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { Listing } from "../types";
 import {
@@ -9,6 +16,11 @@ import { useGetFavoritesQuery } from "../store/services/favorites";
 
 // Stable empty arg so a missing favorites set doesn't churn the query key.
 const EMPTY_IDS: string[] = [];
+
+// Layout effect on the client (runs in commit, before async callbacks can read
+// the ref), plain effect on the server to avoid the SSR warning.
+const useIsomorphicLayoutEffect =
+  typeof window !== "undefined" ? useLayoutEffect : useEffect;
 
 export interface UseListingsResult {
   /** Listings to render — filtered to favorites when `favoritesOnly` is set. */
@@ -68,7 +80,7 @@ export const useListings = (favoritesOnly: boolean): UseListingsResult => {
     ? `favorites:${(favorites ?? EMPTY_IDS).join(",")}`
     : "all";
   const activeKeyRef = useRef(activeKey);
-  useEffect(() => {
+  useIsomorphicLayoutEffect(() => {
     activeKeyRef.current = activeKey;
   }, [activeKey]);
 
@@ -80,17 +92,29 @@ export const useListings = (favoritesOnly: boolean): UseListingsResult => {
     setLoadMoreFailed(false);
   }
 
+  // Synchronous in-flight guard: the IntersectionObserver can fire repeatedly
+  // before `isFetchingNextPage` re-renders, so track in-flight requests per
+  // active query (set before the request, cleared when it settles). Keying by
+  // query — not a single boolean — lets a newly switched view load even while
+  // the previous view's request is still pending.
+  const inFlightKeysRef = useRef(new Set<string>());
+
   const loadMore = useCallback(() => {
     setLoadMoreFailed(false);
-    if (!hasNextPage || isFetchingNextPage) return;
-    const keyAtStart = activeKeyRef.current;
+    // `activeKey` is captured directly (not via the ref) so the synchronous
+    // guard always uses the current query — loadMore is recreated and the
+    // observer reconnects whenever it changes.
+    if (inFlightKeysRef.current.has(activeKey) || !hasNextPage) return;
+    inFlightKeysRef.current.add(activeKey);
     fetchNextPage().then((result) => {
+      inFlightKeysRef.current.delete(activeKey);
       // Ignore a stale result from a query the user has since switched away from.
-      if (result.isError && activeKeyRef.current === keyAtStart) {
+      // The ref holds the latest key; it's settled by the time the request ends.
+      if (result.isError && activeKeyRef.current === activeKey) {
         setLoadMoreFailed(true);
       }
     });
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage]);
+  }, [fetchNextPage, hasNextPage, activeKey]);
 
   const favoriteIds = useMemo(() => new Set(favorites), [favorites]);
 

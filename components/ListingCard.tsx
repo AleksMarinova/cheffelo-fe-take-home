@@ -31,9 +31,9 @@ const ListingCardComponent = ({ listing, isFavorite }: ListingProps) => {
   };
 
   return (
-    <li className="relative flex flex-col border rounded">
-      <article className="flex flex-col p-4 gap-1 grow">
-        <h3 className="font-bold">{listing.car}</h3>
+    <li className="listing-card">
+      <article className="listing-card-body">
+        <h2 className="font-bold">{listing.car}</h2>
         <p className="grow">
           {listing.title} {listing.name}
         </p>
@@ -45,12 +45,12 @@ const ListingCardComponent = ({ listing, isFavorite }: ListingProps) => {
           aria-pressed={isFavorite}
           aria-busy={pending}
           onClick={handleToggle}
-          className="p-2 mt-2 text-white bg-blue-700 border rounded aria-busy:opacity-60"
+          className="btn-primary"
         >
           {isFavorite ? "Remove from favorites" : "Add to favorites 🌟"}
         </button>
         {error && (
-          <p role="alert" className="mt-2 text-sm text-red-700">
+          <p role="alert" className="field-error">
             Could not update favorite. Please try again.
           </p>
         )}

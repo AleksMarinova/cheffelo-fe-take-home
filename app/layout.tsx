@@ -1,7 +1,12 @@
-"use client";
-import Providers from "../providers";
+import type { Metadata } from "next";
 import React from "react";
+
+import Providers from "../providers";
 import "../styles/globals.css";
+
+export const metadata: Metadata = {
+  title: "Cheffelo take-home test",
+};
 
 type Props = {
   children: React.ReactNode;
@@ -10,9 +15,6 @@ type Props = {
 const RootLayout = ({ children }: Props) => {
   return (
     <html lang="en">
-      <head>
-        <title>Cheffelo take-home test</title>
-      </head>
       <body className="max-w-screen-lg mx-auto">
         <Providers>{children}</Providers>
       </body>

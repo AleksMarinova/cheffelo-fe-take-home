@@ -1,6 +1,8 @@
 import Link from "next/link";
+import { Suspense } from "react";
 
 import { Listings } from "../../components/Listings";
+import { FilterNav } from "../../components/FilterNav";
 
 export default function ListingsPage() {
   return (
@@ -10,10 +12,15 @@ export default function ListingsPage() {
         <h1 className="mt-4">
           <strong>Listings</strong>
         </h1>
+        <Suspense fallback={null}>
+          <FilterNav />
+        </Suspense>
       </header>
 
       <main className="p-4">
-        <Listings />
+        <Suspense fallback={<p aria-live="polite">Loading listings…</p>}>
+          <Listings />
+        </Suspense>
       </main>
     </>
   );

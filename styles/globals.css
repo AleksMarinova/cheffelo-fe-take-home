@@ -13,3 +13,45 @@ p {
 a {
   @apply text-blue-500 underline;
 }
+
+@layer components {
+  .listing-grid {
+    @apply grid items-stretch grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+
+  .listing-card {
+    @apply relative flex flex-col border rounded;
+  }
+
+  .listing-card-body {
+    @apply flex flex-col p-4 gap-1 grow;
+  }
+
+  .btn-primary {
+    @apply p-2 mt-2 text-white bg-blue-700 border rounded aria-busy:opacity-60;
+  }
+
+  .field-error {
+    @apply mt-2 text-sm text-red-700;
+  }
+
+  .load-more-status {
+    @apply mt-4 min-h-px text-center;
+  }
+
+  .load-more-error {
+    @apply mt-4 text-center text-red-700;
+  }
+
+  .filter-link {
+    @apply text-blue-700 underline;
+  }
+
+  .filter-link-active {
+    @apply font-semibold underline underline-offset-4;
+  }
+
+  .back-to-top {
+    @apply fixed bottom-4 right-4 z-50 rounded-full bg-blue-700 px-4 py-3 text-white shadow-lg transition hover:bg-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-400 focus-visible:ring-offset-2 sm:bottom-6 sm:right-6;
+  }
+}

@@ -29,7 +29,7 @@ export const Listings = (props: ListingsProps) => {
   // `canLoadMore` flips true while still loading favorites would never observe.
   const showSentinel = !isError && !isLoading && !isEmpty && canLoadMore;
 
-  const setSentinel = useInfiniteScroll<HTMLLIElement>(loadMore, {
+  const setSentinel = useInfiniteScroll<HTMLDivElement>(loadMore, {
     enabled: showSentinel,
     isFetching: isFetchingNextPage,
   });
@@ -51,34 +51,29 @@ export const Listings = (props: ListingsProps) => {
   }
 
   return (
-    <ul
-      className="grid items-stretch grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4"
-      {...props}
-    >
-      {listings.map((listing) => (
-        <ListingCard
-          key={listing.id}
-          listing={listing}
-          isFavorite={favoriteIds.has(listing.id)}
-        />
-      ))}
+    <>
+      <ul className="listing-grid" {...props}>
+        {listings.map((listing) => (
+          <ListingCard
+            key={listing.id}
+            listing={listing}
+            isFavorite={favoriteIds.has(listing.id)}
+          />
+        ))}
+      </ul>
       {canLoadMore && (
-        <li
-          ref={setSentinel}
-          role="status"
-          className="col-span-full min-h-px text-center"
-        >
+        <div ref={setSentinel} role="status" className="load-more-status">
           {isFetchingNextPage ? "Loading more listings…" : null}
-        </li>
+        </div>
       )}
       {loadMoreFailed && (
-        <li role="alert" className="col-span-full text-center text-red-700">
+        <p role="alert" className="load-more-error">
           Couldn&apos;t load more listings.{" "}
           <button type="button" onClick={loadMore} className="underline">
             Try again
           </button>
-        </li>
+        </p>
       )}
-    </ul>
+    </>
   );
 };

@@ -1,7 +1,8 @@
 // Need to use the React-specific entry point to import createApi
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
-import { Listing, ListingsResponse } from "../../types";
+import { ListingsResponse } from "../../types";
 
+// Must stay <= the /api/listings id cap (MAX_IDS) for favorites chunks.
 const PAGE_SIZE = 24;
 
 export const listingsApi = createApi({
@@ -15,14 +16,31 @@ export const listingsApi = createApi({
       },
       query: ({ pageParam }) => `listings?offset=${pageParam}&limit=${PAGE_SIZE}`,
     }),
-    // Fetch a bounded, explicit set of listings by id (the favorites view), so
-    // it doesn't depend on how many paginated pages have been loaded.
-    getListingsByIds: builder.query<Listing[], string[]>({
-      query: (ids) => `listings?ids=${ids.join(",")}`,
-      transformResponse: (response: ListingsResponse) => response.data,
-    }),
+    // Favorites view: page through the favorite ids in chunks. Arg is the full id
+    // list; page param is the offset into it. Each request stays under the route's
+    // id cap, so the view scales past a single bounded request.
+    getFavoriteListings: builder.infiniteQuery<ListingsResponse, string[], number>(
+      {
+        infiniteQueryOptions: {
+          initialPageParam: 0,
+          // Page off the requested id count, not the response length (unknown
+          // ids are dropped from the response).
+          getNextPageParam: (_lastPage, _allPages, lastPageParam, _params, ids) => {
+            const next = lastPageParam + PAGE_SIZE;
+            return next < ids.length ? next : undefined;
+          },
+        },
+        query: ({ queryArg: ids, pageParam }) => {
+          const chunk = ids.slice(pageParam, pageParam + PAGE_SIZE);
+          const params = new URLSearchParams({ ids: chunk.join(",") });
+          return `listings?${params}`;
+        },
+      },
+    ),
   }),
 });
 
-export const { useGetListingsInfiniteQuery, useGetListingsByIdsQuery } =
-  listingsApi;
+export const {
+  useGetListingsInfiniteQuery,
+  useGetFavoriteListingsInfiniteQuery,
+} = listingsApi;
